@@ -1,5 +1,5 @@
 """
-Vis utilities. Code adapted from LOST: https://github.com/valeoai/LOST
+Vis utilities. Code adapted from TokenCut: https://github.com/YangtaoWANG95/TokenCut
 """
 import cv2
 import torch
@@ -29,7 +29,7 @@ def visualize_predictions(img, pred, vis_folder, im_name, save=True):
         (255, 0, 0), 3,
     )
     if save:
-        pltname = f"{vis_folder}/{im_name}_TokenCut_pred.jpg"
+        pltname = f"{vis_folder}/{im_name}_SW6_pred.jpg"
         Image.fromarray(image).save(pltname)
         print(f"Predictions saved at {pltname}.")
     return image
@@ -56,7 +56,7 @@ def visualize_predictions_gt(img, pred, gt, vis_folder, im_name, dim, scales, sa
                 (0, 0, 255), 3,
             )
     if save:
-        pltname = f"{vis_folder}/{im_name}_TokenCut_BBOX.jpg"
+        pltname = f"{vis_folder}/{im_name}_SW6_BBOX.jpg"
         Image.fromarray(image).save(pltname)
         #print(f"Predictions saved at {pltname}.")
     return image
@@ -67,6 +67,6 @@ def visualize_eigvec(eigvec, vis_folder, im_name, dim, scales, save=True):
     """
     eigvec = scipy.ndimage.zoom(eigvec, scales, order=0, mode='nearest')
     if save:
-        pltname = f"{vis_folder}/{im_name}_TokenCut_attn.jpg"
+        pltname = f"{vis_folder}/{im_name}_SW6_attn.jpg"
         plt.imsave(fname=pltname, arr=eigvec, cmap='cividis')
         print(f"Eigen attention saved at {pltname}.")
