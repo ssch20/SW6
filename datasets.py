@@ -7,11 +7,13 @@ import json
 import torchvision
 import numpy as np
 import skimage.io
+import math
 
 from PIL import Image
 from tqdm import tqdm
 from skimage.transform import resize
 from torchvision import transforms as pth_transforms
+
 
 # Image transformation applied to all images
 transform = pth_transforms.Compose(
@@ -67,39 +69,30 @@ class Dataset:
             self.year = "2014"
             self.root_path = f"datasets/COCO14/images/{dataset_set}{self.year}"
             self.all_annfile = "datasets/COCO14/annotations/instances_train2014.json"
-            if not os.path.exists(self.annfile):
-                self.train2014 = get_train2014(self.annfile)
-        else:
-            raise ValueError("Unknown dataset.")
-        
-        if dataset_name == "COCO17":
+        elif dataset_name == "COCO17":
             self.year = "2017"
-            self.root_path = f"datasets/COCO17/images/{dataset_set}{self.year}"
-            self.all_annfile = "datasets/COCO17/annotations/panoptic_train2017.json"
-            if not os.path.exists(self.annfile):
-                self.train2017 = get_train2017(self.annfile)
+            self.root_path = f"datasets/COCO17"
+            self.all_annfile = "datasets/COCO17/annotations/instances_train2017.json"
         else:
-            raise ValueError("Unknown dataset.")
-
-        if not os.path.exists(self.root_path):
-            raise ValueError("Please follow the README to setup the datasets.")
-
+            raise ValueError("Unknown dataset 1.")
+        
         self.name = f"{self.dataset_name}_{self.set}"
+        print(self.root_path, self.all_annfile)
 
         # Build the dataloader
         if "COCO14" == dataset_name:
             self.dataloader = torchvision.datasets.CocoDetection(
-                self.root_path, annFile=self.annfile, transform=transform
+                self.root_path, self.all_annfile, transform=transform
             )
         else:
-            raise ValueError("Unknown dataset.")
+            raise ValueError("Unknown dataset 2.")
 
         if "COCO17" == dataset_name:
             self.dataloader = torchvision.datasets.CocoDetection(
-                self.root_path, annFile=self.annfile, transform=transform
+                self.root_path, self.all_annfile, transform=transform
             )
         else:
-            raise ValueError("Unknown dataset.")
+            raise ValueError("Unknown dataset 2.")
 
         # Set hards images that are not included
         self.remove_hards = remove_hards

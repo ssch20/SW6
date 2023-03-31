@@ -238,7 +238,7 @@ if __name__ == "__main__":
                 # Baseline: compute DINO segmentation technique proposed in the DINO paper
                 # and select the biggest component
                 if args.dinoseg:
-                    pred = dino_seg(attentions, (w_featmap, h_featmap), args.patch_size, head=args.dinoseg_head)
+                    #pred = dino_seg(attentions, (w_featmap, h_featmap), args.patch_size, head=args.dinoseg_head)
                     pred = np.asarray(pred)
                 else:
                     # Extract the qkv features of the last attention layer
