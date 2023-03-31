@@ -127,6 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+datasets/
 datasets/COCO14/annotations/captions_train2014.json
 datasets/COCO14/annotations/captions_val2014.json
 datasets/COCO14/annotations/image_info_test2014.json
