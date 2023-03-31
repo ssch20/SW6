@@ -3,6 +3,7 @@ import textwrap
 import fiftyone as fo
 import fiftyone.zoo as foz
 
+
 class DatasetApi():
 
     def __init__(self, nameOfDataset) -> None:
@@ -13,7 +14,7 @@ class DatasetApi():
         print(available_datasets)
     
     def viewDataset(self, dataset):
-        dataset = 
+        pass
         
     
     def downloadDataset(self, nameOfDataset: str):
