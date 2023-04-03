@@ -45,9 +45,9 @@ if __name__ == "__main__":
     # Use a dataset
     parser.add_argument(
         "--dataset",
-        default="COCO14",
+        default="COCO",
         type=str,
-        choices=[None, "COCO14", "COCO17"],
+        choices=[None, "COCO"],
         help="Dataset name.",
     )
     
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     if args.image_path is None:
         args.output_dir = os.path.join(args.output_dir, dataset.name)
     os.makedirs(args.output_dir, exist_ok=True)
-
+    
     # Naming
     if args.dinoseg:
         # Experiment with the baseline DINO-seg

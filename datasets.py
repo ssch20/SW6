@@ -7,13 +7,12 @@ import json
 import torchvision
 import numpy as np
 import skimage.io
-import math
 
 from PIL import Image
 from tqdm import tqdm
 from skimage.transform import resize
 from torchvision import transforms as pth_transforms
-
+import math
 
 # Image transformation applied to all images
 transform = pth_transforms.Compose(
@@ -65,34 +64,35 @@ class Dataset:
         self.dataset_name = dataset_name
         self.set = dataset_set
 
-        if dataset_name == "COCO14":
-            self.year = "2014"
-            self.root_path = f"datasets/COCO14/images/{dataset_set}{self.year}"
-            self.all_annfile = "datasets/COCO14/annotations/instances_train2014.json"
-        elif dataset_name == "COCO17":
-            self.year = "2017"
-            self.root_path = f"datasets/COCO17"
-            self.all_annfile = "datasets/COCO17/annotations/instances_train2017.json"
-        else:
-            raise ValueError("Unknown dataset 1.")
         
+        if dataset_name == "COCO":
+            self.year = "2014"
+            self.root_path = f"datasets/COCO/images/{dataset_set}{self.year}"
+            self.sel20k = 'datasets/coco_20k_filenames.txt'
+            # JSON file constructed based on COCO train2014 gt 
+            self.all_annfile = "datasets/COCO/annotations/instances_train2014.json"
+            self.annfile = "datasets/instances_train2014_sel20k.json"
+            self.sel_20k = get_sel_20k(self.sel20k)
+            if not os.path.exists(self.annfile):
+                select_coco_20k(self.sel20k, self.all_annfile)
+            self.train2014 = get_train2014(self.annfile)
+        else:
+            raise ValueError("Unknown dataset.")
+
+        print(dataset_set, self.year)
+        print(self.root_path)
+        if os.path.exists(self.root_path):
+            raise ValueError("Please follow the README to setup the datasets.")
+
         self.name = f"{self.dataset_name}_{self.set}"
-        print(self.root_path, self.all_annfile)
 
         # Build the dataloader
-        if "COCO14" == dataset_name:
+        if "COCO" == dataset_name:
             self.dataloader = torchvision.datasets.CocoDetection(
-                self.root_path, self.all_annfile, transform=transform
+                self.root_path, annFile=self.annfile, transform=transform
             )
         else:
-            raise ValueError("Unknown dataset 2.")
-
-        if "COCO17" == dataset_name:
-            self.dataloader = torchvision.datasets.CocoDetection(
-                self.root_path, self.all_annfile, transform=transform
-            )
-        else:
-            raise ValueError("Unknown dataset 2.")
+            raise ValueError("Unknown dataset.")
 
         # Set hards images that are not included
         self.remove_hards = remove_hards
@@ -107,7 +107,10 @@ class Dataset:
         Load the image corresponding to the im_name
         """
         if "COCO" in self.dataset_name:
-            image = skimage.io.imread(f"./datasets/COCO14/images/train2014/{im_name}")
+            #im_path = self.path_20k[self.sel_20k.index(im_name)]
+            #im_path = self.train2014['images'][self.sel_20k.index(im_name)]['file_name']
+            #image = skimage.io.imread(f"./datasets/COCO/images/train2014/{im_path}")
+            image = skimage.io.imread(f"./datasets/COCO/images/train2014/{im_name}")
         else:
             raise ValueError("Unkown dataset.")
         return image
@@ -118,7 +121,8 @@ class Dataset:
         """
         if "COCO" in self.dataset_name:
             im_name = str(inp[0]["image_id"])
-            im_name = self.train2014['images']['file_name']
+            im_name = self.train2014['images'][self.sel_20k.index(im_name)]['file_name']
+
         return im_name
 
     def extract_gt(self, targets, im_name):
@@ -126,11 +130,11 @@ class Dataset:
             return extract_gt_COCO(targets, remove_iscrowd=True)
         else:
             raise ValueError("Unknown dataset")
-        
-    #### Could cause an error or many errors with coco17 fix if needed ####
+
     def extract_classes(self):
         if "COCO" in self.dataset_name:
             cls_path = f"classes_{self.dataset}_{self.set}_{self.year}.txt"
+
         # Load if exists
         if os.path.exists(cls_path):
             all_classes = []
@@ -158,22 +162,6 @@ class Dataset:
                     all_classes.append(objects[o]["category_id"])
 
         return all_classes
-
-    def get_hards(self):
-        hard_path = "datasets/hard_%s_%s_%s.txt" % (self.dataset_name, self.set, self.year)
-        if os.path.exists(hard_path):
-            hards = []
-            with open(hard_path, "r") as f:
-                for line in f:
-                    hards.append(int(line.strip()))
-        else:
-            print("Discover hard images that should be discarded")
-
-            with open(hard_path, "w") as f:
-                for s in hards:
-                    f.write(str(s) + "\n")
-
-        return hards
 
 def extract_gt_COCO(targets, remove_iscrowd=True):
     objects = targets
@@ -248,14 +236,49 @@ def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=
     else:
         return iou  # IoU
 
+def get_sel_20k(sel_file):  
+    # load selected images
+    with open(sel_file, "r") as f:
+        sel_20k = f.readlines()
+        sel_20k = [s.replace("\n", "") for s in sel_20k]
+    im20k = [str(int(s.split("_")[-1].split(".")[0])) for s in sel_20k]
+    return im20k
+
 def get_train2014(all_annotations_file):
     # load all annotations
     with open(all_annotations_file, "r") as f:
         train2014 = json.load(f)
     return train2014
 
-def get_train2017(all_annotations_file):
+def select_coco_20k(sel_file, all_annotations_file):
+    print('Building COCO 20k dataset.')
+
     # load all annotations
     with open(all_annotations_file, "r") as f:
-        train2017 = json.load(f)
-    return train2017
+        train2014 = json.load(f)
+
+    # load selected images
+    with open(sel_file, "r") as f:
+        sel_20k = f.readlines()
+        sel_20k = [s.replace("\n", "") for s in sel_20k]
+    im20k = [str(int(s.split("_")[-1].split(".")[0])) for s in sel_20k]
+
+    new_anno = []
+    new_images = []
+
+    for i in tqdm(im20k):
+        new_anno.extend(
+            [a for a in train2014["annotations"] if a["image_id"] == int(i)]
+        )
+        new_images.extend([a for a in train2014["images"] if a["id"] == int(i)])
+    
+    train2014_20k = {}
+    train2014_20k["images"] = new_images
+    train2014_20k["annotations"] = new_anno
+    train2014_20k["categories"] = train2014["categories"]
+
+    with open("datasets/instances_train2014_sel20k.json", "w") as outfile:
+        json.dump(train2014_20k, outfile)
+    
+    print(f'im20k :{im20k[0]}')
+    print('Done.')
