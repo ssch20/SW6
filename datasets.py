@@ -27,7 +27,6 @@ class ImageDataset:
         
         self.image_path = image_path
         self.name = image_path.split("/")[-1]
-
         # Read the image
         with open(image_path, "rb") as f:
             img = Image.open(f)
@@ -67,22 +66,20 @@ class Dataset:
         
         if dataset_name == "COCO":
             self.year = "2014"
-            self.root_path = f"datasets/COCO/images/{dataset_set}{self.year}"
+            self.root_path = r"datasets/COCO/images/"
             self.sel20k = 'datasets/coco_20k_filenames.txt'
             # JSON file constructed based on COCO train2014 gt 
-            self.all_annfile = "datasets/COCO/annotations/instances_train2014.json"
-            self.annfile = "datasets/instances_train2014_sel20k.json"
+            self.all_annfile = r"datasets/COCO/annotations/instances_train2014.json"
+            self.annfile = r"datasets/instances_train2014_sel20k.json"
             self.sel_20k = get_sel_20k(self.sel20k)
-            if not os.path.exists(self.annfile):
-                select_coco_20k(self.sel20k, self.all_annfile)
-            self.train2014 = get_train2014(self.annfile)
+            #if not os.path.exists(self.annfile):
+            #    select_coco_20k(self.sel20k, self.all_annfile)
+            #self.train2014 = get_train2014(self.annfile)
         else:
             raise ValueError("Unknown dataset.")
-
-        print(dataset_set, self.year)
-        print(self.root_path)
-        if os.path.exists(self.root_path):
-            raise ValueError("Please follow the README to setup the datasets.")
+        
+        #if not os.path.exists(self.root_path):
+        #    raise ValueError("Please follow the README to setup the datasets.")
 
         self.name = f"{self.dataset_name}_{self.set}"
 
@@ -107,10 +104,8 @@ class Dataset:
         Load the image corresponding to the im_name
         """
         if "COCO" in self.dataset_name:
-            #im_path = self.path_20k[self.sel_20k.index(im_name)]
-            #im_path = self.train2014['images'][self.sel_20k.index(im_name)]['file_name']
-            #image = skimage.io.imread(f"./datasets/COCO/images/train2014/{im_path}")
-            image = skimage.io.imread(f"./datasets/COCO/images/train2014/{im_name}")
+            im_path = self.sel_20k.index(im_name)
+            image = skimage.io.imread(f"datasets/COCO/images/{im_path}")
         else:
             raise ValueError("Unkown dataset.")
         return image
@@ -121,7 +116,7 @@ class Dataset:
         """
         if "COCO" in self.dataset_name:
             im_name = str(inp[0]["image_id"])
-            im_name = self.train2014['images'][self.sel_20k.index(im_name)]['file_name']
+            # im_name = ['images'][self.sel_20k.index(im_name)]['file_name']
 
         return im_name
 
