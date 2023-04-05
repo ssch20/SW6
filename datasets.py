@@ -104,8 +104,8 @@ class Dataset:
         Load the image corresponding to the im_name
         """
         if "COCO" in self.dataset_name:
-            im_path = self.sel_20k.index(im_name)
-            image = skimage.io.imread(f"datasets/COCO/images/{im_path}")
+            # im_path = self.sel_20k.index(im_name)
+            image = skimage.io.imread("datasets/COCO/images/COCO_train2014_000000000009.jpg")
         else:
             raise ValueError("Unkown dataset.")
         return image
