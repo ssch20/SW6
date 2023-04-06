@@ -15,7 +15,7 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image
 
-from networks import get_model
+from ultralytics import YOLO
 from datasets import ImageDataset, Dataset, bbox_iou
 from visualizations import visualize_img, visualize_eigvec, visualize_predictions, visualize_predictions_gt 
 from object_discovery import ncut 
@@ -134,9 +134,14 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------------------------------------
     # Model
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    #device = torch.device('cuda') 
-    model = get_model(args.arch, args.patch_size, device)
+    # device = torch.device('cuda')
+    model = YOLO('yolov8n.yaml')  # build a new model from YAML
+    model = YOLO("yolov8x.pt")    # load a pretrained model (recommended for training)
+    model = YOLO('yolov8n.yaml').load('yolov8x.pt')  # build from YAML and transfer weights
 
+    # Train the model
+    results = model.train(data="coco.yaml", epochs=1)  # Train the model
+    
     # -------------------------------------------------------------------------------------------------------
     # Directories
     if args.image_path is None:
