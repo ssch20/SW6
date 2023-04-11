@@ -140,7 +140,7 @@ if __name__ == "__main__":
     model = YOLO('yolov8n.yaml').load('yolov8n.pt')  # build from YAML and transfer weights
 
     # Train the model
-    results = model.train(data="coco.yaml", epochs=1)  # Train the model
+    results = model.train(data="coco.yaml", batch=1, epochs=1)  # Train the model
     
     # -------------------------------------------------------------------------------------------------------
     # Directories
