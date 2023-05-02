@@ -14,33 +14,10 @@ import numpy as np
 
 from tqdm import tqdm
 from PIL import Image
-from comet_ml import Experiment
-from comet_ml.integration.pytorch import log_model
 
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
 import time
-
-experiment = Experiment(
-  api_key = "sOsGqgERgDT04PBLtSGQgU91t",
-  project_name = "p6",
-  workspace="j2kjonas"
-)
-
-# Report multiple hyperparameters using a dictionary:
-hyper_params = {
-   "learning_rate": 0.5,
-   "steps": 100000,
-   "batch_size": 50,
-}
-experiment.log_parameters(hyper_params)
-
-# Initialize and train your model
-# model = TheModelClass()
-# train(model)
-
-# Seamlessly log your Pytorch model
-log_model(experiment, model_name="TheModel")
 
 
 if __name__ == "__main__":
