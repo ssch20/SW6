@@ -11,7 +11,6 @@ import torchvision.datasets as dset
 from torch import nn
 from torchvision import transforms
 from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10
 from ultralytics import YOLO
 
 from torchvision.datasets import ImageFolder
