@@ -15,7 +15,7 @@ from ultralytics import YOLO
 
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as T
-
+from PIL import Image
 
 class MLP(nn.Module):
   '''
@@ -23,6 +23,7 @@ class MLP(nn.Module):
   '''
   def __init__(self):
     super().__init__()
+    
     self.layers = nn.Sequential(
       nn.Flatten(),
       nn.Linear(32 * 32 * 3, 64),
@@ -31,7 +32,7 @@ class MLP(nn.Module):
       nn.ReLU(),
       nn.Linear(32, 10)
     )
-
+# 1x498000 and 3072x64
 
   def forward(self, x):
     '''Forward pass'''
@@ -50,12 +51,12 @@ if __name__ == '__main__':
   path2data="./datasets/COCO17/images/train2017"
   path2json="./datasets/COCO17/annotations/instances_train2017.json"
   coco_train = dset.CocoDetection(root = path2data,
-                                  annFile = path2json)
+                                  annFile = path2json,
+                                  transform=transforms.ToTensor())
   print('Number of samples: ', len(coco_train))
   #dataset = pathlib.Path('./datasets/COCO14/', transform=transforms.ToTensor())
   transform = T.ToTensor()
-  dataset = ImageFolder(root=path2data, transform=transform)
-  trainloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=1)
+  trainloader = torch.utils.data.DataLoader(coco_train, shuffle=True)
   
   # Initialize the MLP
   mlp = MLP()
