@@ -13,10 +13,6 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from ultralytics import YOLO
 
-from torchvision.datasets import ImageFolder
-import torchvision.transforms as T
-from PIL import Image
-
 class MLP(nn.Module):
   '''
     Multilayer Perceptron.
@@ -24,6 +20,7 @@ class MLP(nn.Module):
   def __init__(self):
     super().__init__()
     
+    # Needs to be changed
     self.layers = nn.Sequential(
       nn.Flatten(),
       nn.Linear(32 * 32 * 3, 64),
@@ -54,8 +51,6 @@ if __name__ == '__main__':
                                   annFile = path2json,
                                   transform=transforms.ToTensor())
   print('Number of samples: ', len(coco_train))
-  #dataset = pathlib.Path('./datasets/COCO14/', transform=transforms.ToTensor())
-  transform = T.ToTensor()
   trainloader = torch.utils.data.DataLoader(coco_train, shuffle=True)
   
   # Initialize the MLP
