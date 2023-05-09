@@ -8,10 +8,14 @@ import torch.utils.data
 
 import torchvision.datasets as dset
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from torch import nn
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from ultralytics import YOLO
+from collections import OrderedDict
 
 class MLP(nn.Module):
   '''
@@ -21,19 +25,20 @@ class MLP(nn.Module):
     super().__init__()
     
     # Needs to be changed
-    self.layers = nn.Sequential(
-      nn.Flatten(),
-      nn.Linear(32 * 32 * 3, 64),
-      nn.ReLU(),
-      nn.Linear(64, 32),
-      nn.ReLU(),
-      nn.Linear(32, 10)
-    )
-# 1x498000 and 3072x64
+    self.layers = nn.Sequential(OrderedDict([
+    ('dense1', nn.Linear(860000, 6)),
+    ('act1', nn.ReLU()),
+    ('dense2', nn.Linear(860000, 6)),
+    ('act2', nn.ReLU()),
+    ('output', nn.Linear(860000, 6)),
+    ('outact', nn.Sigmoid()),
+]))
 
   def forward(self, x):
     '''Forward pass'''
-    return self.layers(x)
+    x = x.view(x.size(0), -1)
+    x = self.layers(x)
+    return x
 
 
 if __name__ == '__main__':
@@ -45,12 +50,17 @@ if __name__ == '__main__':
   torch.manual_seed(42)
   
   # Prepare COCO dataset
+  train_csv = pd.read_csv('./datasets/train.csv')
+  print('train data shape: ', train_csv)
+
+
   path2data="./datasets/COCO17/images/train2017"
   path2json="./datasets/COCO17/annotations/instances_train2017.json"
   coco_train = dset.CocoDetection(root = path2data,
                                   annFile = path2json,
                                   transform=transforms.ToTensor())
   print('Number of samples: ', len(coco_train))
+  print('COCO:', coco_train)
   trainloader = torch.utils.data.DataLoader(coco_train, shuffle=True)
   
   # Initialize the MLP
