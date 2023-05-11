@@ -1,7 +1,4 @@
 import torch
-import torch.nn as nn
-import numpy as np
-
 from ultralytics import YOLO
 
 if __name__ == "__main__":
